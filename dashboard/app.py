@@ -57,21 +57,15 @@ st.markdown("""
     * { font-family: 'Inter', sans-serif !important; }
     .block-container { padding: 2rem 3rem; }
     .pf-header {
-        background: #1a3a2a;
-        color: white;
-        padding: 1.5rem 2rem;
-        border-radius: 12px;
-        margin-bottom: 2rem;
+        background: #1a3a2a; color: white;
+        padding: 1.5rem 2rem; border-radius: 12px; margin-bottom: 2rem;
     }
     .pf-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; margin: 0; }
     .pf-subtitle { font-size: 14px; opacity: 0.7; margin: 4px 0 0 0; }
     .decision-box {
-        padding: 1.2rem 1.5rem;
-        border-radius: 10px;
-        font-size: 20px;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        border-left: 5px solid;
+        padding: 1.2rem 1.5rem; border-radius: 10px;
+        font-size: 20px; font-weight: 700;
+        margin-bottom: 1rem; border-left: 5px solid;
     }
     .auto-settle   { background:#f0faf4; color:#1a5c35; border-color:#2d8653; }
     .senior        { background:#fffbf0; color:#7a5c00; border-color:#c49a00; }
@@ -79,41 +73,43 @@ st.markdown("""
     .escalate      { background:#fff0f0; color:#7a1a1a; border-color:#e33d2d; }
     .human-review  { background:#f5f0ff; color:#3d1a7a; border-color:#7c3de3; }
     .why-card {
-        background: #f8faf9;
-        border-radius: 8px;
-        padding: 10px 12px;
-        margin-bottom: 6px;
-        border-left: 3px solid #2d8653;
-        font-size: 13px;
-        color: #2c3e30;
+        background:#f8faf9; border-radius:8px;
+        padding:10px 12px; margin-bottom:6px;
+        border-left:3px solid #2d8653;
+        font-size:13px; color:#2c3e30;
     }
+    .pc-card {
+        background:#f8faf9; border-radius:8px;
+        padding:14px 16px; margin-bottom:8px;
+        border-left:3px solid #1a3a2a;
+    }
+    .pc-label { font-size:11px; font-weight:600; color:#6b7b6e; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px; }
+    .pc-value { font-size:20px; font-weight:700; color:#1a3a2a; }
+    .pc-value-red { font-size:20px; font-weight:700; color:#e33d2d; }
+    .pc-value-amber { font-size:20px; font-weight:700; color:#c49a00; }
+    .pc-value-green { font-size:20px; font-weight:700; color:#2d8653; }
     .pf-section-label {
-        font-size: 13px;
-        font-weight: 600;
-        color: #1a3a2a;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        padding: 0.5rem 0;
-        border-bottom: 2px solid #1a3a2a;
-        margin-bottom: 1rem;
-        margin-top: 1rem;
+        font-size:13px; font-weight:600; color:#1a3a2a;
+        text-transform:uppercase; letter-spacing:0.05em;
+        padding:0.5rem 0; border-bottom:2px solid #1a3a2a;
+        margin-bottom:1rem; margin-top:1rem;
     }
-    .stTabs [data-baseweb="tab-list"] { gap: 8px; border-bottom: 2px solid #e8ede9; }
-    .stTabs [data-baseweb="tab"] { border-radius: 8px 8px 0 0; padding: 8px 20px; font-weight: 600; color: #6b7b6e; }
-    .stTabs [aria-selected="true"] { background: #1a3a2a !important; color: white !important; }
+    .stTabs [data-baseweb="tab-list"] { gap:8px; border-bottom:2px solid #e8ede9; }
+    .stTabs [data-baseweb="tab"] { border-radius:8px 8px 0 0; padding:8px 20px; font-weight:600; color:#6b7b6e; }
+    .stTabs [aria-selected="true"] { background:#1a3a2a !important; color:white !important; }
     .stButton > button {
-        background: #1a3a2a; color: white; border: none;
-        border-radius: 8px; padding: 0.6rem 2rem;
-        font-weight: 600; font-size: 15px; width: 100%;
+        background:#1a3a2a; color:white; border:none;
+        border-radius:8px; padding:0.6rem 2rem;
+        font-weight:600; font-size:15px; width:100%;
     }
-    .stButton > button:hover { background: #2d8653; color: white; }
+    .stButton > button:hover { background:#2d8653; color:white; }
 </style>
 """, unsafe_allow_html=True)
 
 st.markdown("""
 <div class="pf-header">
     <div class="pf-title">Pathfinder</div>
-    <div class="pf-subtitle">Intelligent Claim Triage & Decision Support · Powered by Guidewire ClaimCenter</div>
+    <div class="pf-subtitle">Intelligent Claim Triage & Decision Support for Enterprise Insurance</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -123,12 +119,9 @@ tab1, tab2, tab3 = st.tabs(["Score a Claim", "Batch Scoring", "Audit Log"])
 # TAB 1 — Single claim
 # ════════════════════════════════════════════════
 with tab1:
-
-    # Scenario selector
     selected_scenario = st.selectbox(
         "Quick-load a demo scenario",
-        list(SCENARIOS.keys()),
-        index=0
+        list(SCENARIOS.keys()), index=0
     )
     scenario_data = SCENARIOS[selected_scenario]
     if scenario_data:
@@ -220,22 +213,24 @@ with tab1:
         decision     = routing["decision"]
         similar      = data["similar_claims"]
         explanations = data.get("explanations", {})
+        pc           = data.get("policy_context", {})
 
         css_map = {
             "AUTO_SETTLE":"auto-settle","SENIOR_ADJUSTER":"senior",
             "STANDARD_ADJUSTER":"standard","SIU_ESCALATION":"escalate",
             "HUMAN_REVIEW":"human-review"
         }
-        emoji_map = {
-            "AUTO_SETTLE":"✓","SENIOR_ADJUSTER":"!",
-            "STANDARD_ADJUSTER":"→","SIU_ESCALATION":"✗","HUMAN_REVIEW":"?"
+        label_map = {
+            "AUTO_SETTLE":"Auto Settle","SENIOR_ADJUSTER":"Senior Adjuster",
+            "STANDARD_ADJUSTER":"Standard Adjuster",
+            "SIU_ESCALATION":"SIU Escalation","HUMAN_REVIEW":"Human Review"
         }
 
         st.divider()
 
         st.markdown(f"""
         <div class="decision-box {css_map.get(decision,'standard')}">
-            {emoji_map.get(decision,'')} {decision.replace('_',' ')}
+            {label_map.get(decision, decision)}
             <div style="font-size:14px;font-weight:400;margin-top:4px">{routing['reason']}</div>
         </div>
         """, unsafe_allow_html=True)
@@ -247,6 +242,7 @@ with tab1:
         )
         st.divider()
 
+        # ── Radar + breakdown ─────────────────────────────
         col1, col2 = st.columns([1.3, 1])
         with col1:
             st.markdown("**DNA Score Radar**")
@@ -273,15 +269,87 @@ with tab1:
 
         with col2:
             st.markdown("**Score Breakdown**")
-            dims_list = ["fraud","severity","complexity","urgency","litigation"]
-            for dim in dims_list:
-                score = scores[dim]
-                pct   = int(score * 100)
-                st.markdown(f"**{dim.capitalize()}** — {pct}%")
+            for dim, score in scores.items():
+                st.markdown(f"**{dim.capitalize()}** — {int(score*100)}%")
                 st.progress(score)
 
         st.divider()
 
+        # ── Policy Context ────────────────────────────────
+        st.markdown("**Policy Context**")
+        st.caption("Cross-system enrichment — policy history, payment behaviour, and coverage analysis")
+
+        if pc:
+            def pc_color(value, high_is_bad=True):
+                if high_is_bad:
+                    if value > 0.6: return "pc-value-red"
+                    if value > 0.35: return "pc-value-amber"
+                    return "pc-value-green"
+                else:
+                    if value > 75: return "pc-value-green"
+                    if value > 50: return "pc-value-amber"
+                    return "pc-value-red"
+
+            tier_color = {"PLATINUM":"#1a3a2a","GOLD":"#856404","SILVER":"#555","STANDARD":"#888"}.get(pc.get("premium_tier",""), "#333")
+            payment    = pc.get("payment_score", 0)
+            pay_cls    = "pc-value-green" if payment > 75 else "pc-value-amber" if payment > 50 else "pc-value-red"
+            freq       = pc.get("claims_frequency","LOW")
+            freq_cls   = "pc-value-red" if freq == "HIGH" else "pc-value-amber" if freq == "MODERATE" else "pc-value-green"
+            risk_pct   = int(pc.get("policy_risk_score", 0) * 100)
+            risk_cls   = "pc-value-red" if risk_pct > 60 else "pc-value-amber" if risk_pct > 35 else "pc-value-green"
+            rec        = pc.get("pc_recommendation","—").replace("_"," ")
+            age_flag   = pc.get("policy_age_flag","—").replace("_"," ")
+            cov_flag   = pc.get("coverage_flag","—").replace("_"," ")
+
+            r1c1, r1c2, r1c3, r1c4 = st.columns(4)
+            with r1c1:
+                st.markdown(f"""<div class="pc-card">
+                    <div class="pc-label">Premium Tier</div>
+                    <div class="pc-value" style="color:{tier_color}">{pc.get("premium_tier","—")}</div>
+                </div>""", unsafe_allow_html=True)
+            with r1c2:
+                st.markdown(f"""<div class="pc-card">
+                    <div class="pc-label">Payment Score</div>
+                    <div class="{pay_cls}">{payment}/100</div>
+                </div>""", unsafe_allow_html=True)
+            with r1c3:
+                st.markdown(f"""<div class="pc-card">
+                    <div class="pc-label">Claims Frequency</div>
+                    <div class="{freq_cls}">{freq}</div>
+                </div>""", unsafe_allow_html=True)
+            with r1c4:
+                st.markdown(f"""<div class="pc-card">
+                    <div class="pc-label">Policy Risk Score</div>
+                    <div class="{risk_cls}">{risk_pct}%</div>
+                </div>""", unsafe_allow_html=True)
+
+            r2c1, r2c2, r2c3, r2c4 = st.columns(4)
+            with r2c1:
+                st.markdown(f"""<div class="pc-card">
+                    <div class="pc-label">Policy Age</div>
+                    <div class="pc-value">{age_flag}</div>
+                </div>""", unsafe_allow_html=True)
+            with r2c2:
+                st.markdown(f"""<div class="pc-card">
+                    <div class="pc-label">Coverage Flag</div>
+                    <div class="pc-value">{cov_flag}</div>
+                </div>""", unsafe_allow_html=True)
+            with r2c3:
+                st.markdown(f"""<div class="pc-card">
+                    <div class="pc-label">Coverage Ratio</div>
+                    <div class="pc-value">{pc.get('coverage_ratio',0):.1%}</div>
+                </div>""", unsafe_allow_html=True)
+            with r2c4:
+                st.markdown(f"""<div class="pc-card">
+                    <div class="pc-label">PC Recommendation</div>
+                    <div class="pc-value" style="font-size:15px">{rec}</div>
+                </div>""", unsafe_allow_html=True)
+
+            st.caption("Source: Policy Management System · Enrichment applied at intake")
+
+        st.divider()
+
+        # ── Why These Scores ──────────────────────────────
         st.markdown("**Why These Scores?**")
         st.caption("Interpretable AI — every decision is fully auditable by adjusters and regulators")
         cols = st.columns(5)
@@ -301,6 +369,7 @@ with tab1:
 
         st.divider()
 
+        # ── Similar Claims ────────────────────────────────
         st.markdown("**Most Similar Historical Claims**")
         st.caption("Cosine similarity search across 8,000 historical claims")
         df_sim = pd.DataFrame(similar)
@@ -310,6 +379,7 @@ with tab1:
 
         st.divider()
 
+        # ── Feedback ──────────────────────────────────────
         st.markdown("**Submit Adjuster Feedback**")
         st.caption("Outcomes feed back into the model retraining pipeline")
         fc1, fc2, fc3 = st.columns([1,1,1])
@@ -333,8 +403,9 @@ with tab1:
 # TAB 2 — Batch scoring
 # ════════════════════════════════════════════════
 with tab2:
-    st.markdown('<div class="pf-section-label">Batch Claim Scoring</div>', unsafe_allow_html=True)
-    st.info("Upload a CSV file containing claim data. All 14 required fields must be present as column headers.")
+    st.markdown('<div class="pf-section-label">Batch Claim Scoring</div>',
+                unsafe_allow_html=True)
+    st.info("Upload a CSV file containing claim data. All 14 required fields must be present.")
 
     col1, col2 = st.columns([2,1])
     with col1:
@@ -354,13 +425,11 @@ with tab2:
             if res.status_code == 200:
                 batch_data = res.json()
                 df_batch   = pd.DataFrame(batch_data["results"])
-
                 st.success(f"{batch_data['total']} claims scored successfully")
 
                 df_display = df_batch.copy()
                 df_display["decision"] = df_display["decision"].apply(
-                    lambda x: x.replace("_"," ")
-                )
+                    lambda x: x.replace("_"," "))
                 st.dataframe(df_display, use_container_width=True, hide_index=True)
 
                 col1, col2 = st.columns(2)
@@ -369,8 +438,8 @@ with tab2:
                     st.bar_chart(df_display["decision"].value_counts())
                 with col2:
                     st.markdown("**Risk Score Averages**")
-                    avg_scores = df_batch[["fraud","severity","complexity","urgency","litigation"]].mean()
-                    st.bar_chart(avg_scores)
+                    st.bar_chart(df_batch[["fraud","severity","complexity",
+                                           "urgency","litigation"]].mean())
 
                 csv_out = df_batch.to_csv(index=False, encoding="utf-8")
                 st.download_button(
@@ -391,11 +460,12 @@ with tab2:
         with m1:
             st.metric("Total feedback records", summary["total"])
         with m2:
-            st.metric("Decisions tracked", len(summary.get("decisions", {})))
+            st.metric("Decisions tracked", len(summary.get("decisions",{})))
         if summary.get("decisions"):
             st.bar_chart(summary["decisions"])
     except:
         st.caption("API not reachable")
+
 # ════════════════════════════════════════════════
 # TAB 3 — Audit Log
 # ════════════════════════════════════════════════
@@ -405,15 +475,14 @@ with tab3:
     st.caption("Full decision history — GDPR Article 22 compliant · Every decision is logged, explainable and auditable")
 
     try:
-        audit_res = requests.get(f"{API_URL}/audit")
+        audit_res  = requests.get(f"{API_URL}/audit")
         audit_data = audit_res.json()
-        records = audit_data.get("records", [])
+        records    = audit_data.get("records", [])
 
         if not records:
             st.info("No decisions logged yet. Score some claims to populate the audit log.")
         else:
-            # ── Summary metrics ───────────────────────────
-            total = audit_data["total"]
+            total     = audit_data["total"]
             decisions = [r["decision"] for r in records]
             high_conf = sum(1 for r in records if r["confidence"] == "HIGH")
 
@@ -429,7 +498,6 @@ with tab3:
 
             st.divider()
 
-            # ── Filter ────────────────────────────────────
             col1, col2 = st.columns(2)
             with col1:
                 filter_decision = st.selectbox(
@@ -442,7 +510,6 @@ with tab3:
                     ["All", "HIGH", "LOW"]
                 )
 
-            # Apply filters
             filtered = records
             if filter_decision != "All":
                 filtered = [r for r in filtered if r["decision"] == filter_decision]
@@ -451,41 +518,37 @@ with tab3:
 
             st.caption(f"Showing {len(filtered)} of {total} records")
 
-            # ── Table ─────────────────────────────────────
             df_audit = pd.DataFrame([{
-                "Timestamp":   r["timestamp"][:19].replace("T", " "),
-                "Claim ID":    r["claim_id"],
-                "Decision":    r["decision"].replace("_", " "),
-                "Confidence":  r["confidence"],
-                "Fraud":       f"{int(r['dna_scores'].get('fraud',0)*100)}%",
-                "Severity":    f"{int(r['dna_scores'].get('severity',0)*100)}%",
-                "Litigation":  f"{int(r['dna_scores'].get('litigation',0)*100)}%",
-                "Reason":      r["reason"],
+                "Timestamp":  r["timestamp"][:19].replace("T"," "),
+                "Claim ID":   r["claim_id"],
+                "Decision":   r["decision"].replace("_"," "),
+                "Confidence": r["confidence"],
+                "Fraud":      f"{int(r['dna_scores'].get('fraud',0)*100)}%",
+                "Severity":   f"{int(r['dna_scores'].get('severity',0)*100)}%",
+                "Litigation": f"{int(r['dna_scores'].get('litigation',0)*100)}%",
+                "Reason":     r["reason"],
             } for r in filtered])
 
             st.dataframe(df_audit, use_container_width=True, hide_index=True)
 
             st.divider()
 
-            # ── Decision distribution chart ───────────────
             col1, col2 = st.columns(2)
             with col1:
                 st.markdown("**Decision Distribution**")
-                decision_counts = pd.Series(decisions).value_counts()
-                decision_counts.index = decision_counts.index.str.replace("_", " ")
-                st.bar_chart(decision_counts)
-
+                dc = pd.Series(decisions).value_counts()
+                dc.index = dc.index.str.replace("_"," ")
+                st.bar_chart(dc)
             with col2:
                 st.markdown("**Average DNA Scores Across All Claims**")
                 avg = {
-                    dim: round(sum(r["dna_scores"].get(dim,0) for r in records)/len(records), 3)
+                    dim: round(sum(r["dna_scores"].get(dim,0)
+                               for r in records)/len(records), 3)
                     for dim in ["fraud","severity","complexity","urgency","litigation"]
                 }
                 st.bar_chart(pd.Series(avg))
 
             st.divider()
-
-            # ── Download full audit log ───────────────────
             st.markdown("**Download Full Audit Log**")
             st.caption("Provide this to compliance officers or regulators on request")
             audit_csv = df_audit.to_csv(index=False, encoding="utf-8")
