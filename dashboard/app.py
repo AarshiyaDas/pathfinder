@@ -117,7 +117,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-tab1, tab2 = st.tabs(["Score a Claim", "Batch Scoring"])
+tab1, tab2, tab3 = st.tabs(["Score a Claim", "Batch Scoring", "Audit Log"])
 
 # ════════════════════════════════════════════════
 # TAB 1 — Single claim
@@ -396,3 +396,106 @@ with tab2:
             st.bar_chart(summary["decisions"])
     except:
         st.caption("API not reachable")
+# ════════════════════════════════════════════════
+# TAB 3 — Audit Log
+# ════════════════════════════════════════════════
+with tab3:
+    st.markdown('<div class="pf-section-label">Regulatory Audit Log</div>',
+                unsafe_allow_html=True)
+    st.caption("Full decision history — GDPR Article 22 compliant · Every decision is logged, explainable and auditable")
+
+    try:
+        audit_res = requests.get(f"{API_URL}/audit")
+        audit_data = audit_res.json()
+        records = audit_data.get("records", [])
+
+        if not records:
+            st.info("No decisions logged yet. Score some claims to populate the audit log.")
+        else:
+            # ── Summary metrics ───────────────────────────
+            total = audit_data["total"]
+            decisions = [r["decision"] for r in records]
+            high_conf = sum(1 for r in records if r["confidence"] == "HIGH")
+
+            m1, m2, m3, m4 = st.columns(4)
+            with m1:
+                st.metric("Total Decisions", total)
+            with m2:
+                st.metric("High Confidence", high_conf)
+            with m3:
+                st.metric("Escalations", decisions.count("SIU_ESCALATION"))
+            with m4:
+                st.metric("Auto Settled", decisions.count("AUTO_SETTLE"))
+
+            st.divider()
+
+            # ── Filter ────────────────────────────────────
+            col1, col2 = st.columns(2)
+            with col1:
+                filter_decision = st.selectbox(
+                    "Filter by decision",
+                    ["All"] + list(set(decisions))
+                )
+            with col2:
+                filter_confidence = st.selectbox(
+                    "Filter by confidence",
+                    ["All", "HIGH", "LOW"]
+                )
+
+            # Apply filters
+            filtered = records
+            if filter_decision != "All":
+                filtered = [r for r in filtered if r["decision"] == filter_decision]
+            if filter_confidence != "All":
+                filtered = [r for r in filtered if r["confidence"] == filter_confidence]
+
+            st.caption(f"Showing {len(filtered)} of {total} records")
+
+            # ── Table ─────────────────────────────────────
+            df_audit = pd.DataFrame([{
+                "Timestamp":   r["timestamp"][:19].replace("T", " "),
+                "Claim ID":    r["claim_id"],
+                "Decision":    r["decision"].replace("_", " "),
+                "Confidence":  r["confidence"],
+                "Fraud":       f"{int(r['dna_scores'].get('fraud',0)*100)}%",
+                "Severity":    f"{int(r['dna_scores'].get('severity',0)*100)}%",
+                "Litigation":  f"{int(r['dna_scores'].get('litigation',0)*100)}%",
+                "Reason":      r["reason"],
+            } for r in filtered])
+
+            st.dataframe(df_audit, use_container_width=True, hide_index=True)
+
+            st.divider()
+
+            # ── Decision distribution chart ───────────────
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("**Decision Distribution**")
+                decision_counts = pd.Series(decisions).value_counts()
+                decision_counts.index = decision_counts.index.str.replace("_", " ")
+                st.bar_chart(decision_counts)
+
+            with col2:
+                st.markdown("**Average DNA Scores Across All Claims**")
+                avg = {
+                    dim: round(sum(r["dna_scores"].get(dim,0) for r in records)/len(records), 3)
+                    for dim in ["fraud","severity","complexity","urgency","litigation"]
+                }
+                st.bar_chart(pd.Series(avg))
+
+            st.divider()
+
+            # ── Download full audit log ───────────────────
+            st.markdown("**Download Full Audit Log**")
+            st.caption("Provide this to compliance officers or regulators on request")
+            audit_csv = df_audit.to_csv(index=False, encoding="utf-8")
+            st.download_button(
+                "Download Audit Log CSV",
+                audit_csv.encode("utf-8"),
+                "pathfinder_audit_log.csv",
+                "text/csv",
+                use_container_width=True
+            )
+
+    except Exception as e:
+        st.error(f"Could not load audit log: {e}")
